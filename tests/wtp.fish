@@ -47,6 +47,27 @@ wtp add -b feat-nested >/dev/null
 wtp cd feat-nested >/dev/null
 @test "changed directory to nested worktree" (pwd) = "$tmp/nested/path/feat-nested"
 
+# Test 7: Hooks
+cd $tmp
+# Create a dummy file to copy
+echo "secret data" > .env.example
+
+# Update config with hooks
+echo "version: '1.0'
+defaults:
+  base_dir: wts
+hooks:
+  post_create:
+    - type: copy
+      from: .env.example
+      to: .env
+    - type: command
+      command: touch hooks_ran.txt" > .wtp.yml
+
+wtp add -b hook-feature >/dev/null
+@test "copy hook worked" -f wts/hook-feature/.env
+@test "command hook worked" -f wts/hook-feature/hooks_ran.txt
+
 # Cleanup
 cd ..
 rm -rf $tmp

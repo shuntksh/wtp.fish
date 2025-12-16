@@ -228,38 +228,38 @@ function __wtp_run_hooks --argument-names wt_path
 
     while read -l line
         # Skip empty lines and comments
-        if test -z "$line"; or string match -q "#*" (string trim $line)
+        if test -z "$line"; or string match -q -- "#*" (string trim -- "$line")
             continue
         end
 
         # Check for post_create section
-        if string match -q "*post_create:*" $line
+        if string match -q -- "*post_create:*" "$line"
             set in_post_create true
             continue
         end
 
         if test "$in_post_create" = "true"
             # Check if we've left hooks section
-            if string match -q -r "^[a-z]" $line
+            if string match -q -r -- "^[a-z]" "$line"
                 set in_post_create false
                 continue
             end
 
             # Parse hook entries
-            if string match -q "*- type:*" $line
+            if string match -q -- "*- type:*" "$line"
                 # Process previous hook if exists
                 __wtp_execute_hook "$current_type" "$current_from" "$current_to" "$current_command" "$main_path" "$wt_path"
                 
-                set current_type (string replace -r ".*type:\s*" "" $line | string trim | string replace -a '"' '' | string replace -a "'" '')
+                set current_type (string replace -r -- ".*type:\s*" "" "$line" | string trim | string replace -a '"' '' | string replace -a "'" '')
                 set current_from ""
                 set current_to ""
                 set current_command ""
-            else if string match -q "*from:*" $line
-                set current_from (string replace -r ".*from:\s*" "" $line | string trim | string replace -a '"' '' | string replace -a "'" '')
-            else if string match -q "*to:*" $line
-                set current_to (string replace -r ".*to:\s*" "" $line | string trim | string replace -a '"' '' | string replace -a "'" '')
-            else if string match -q "*command:*" $line
-                set current_command (string replace -r ".*command:\s*" "" $line | string trim | string replace -a '"' '' | string replace -a "'" '')
+            else if string match -q -- "*from:*" "$line"
+                set current_from (string replace -r -- ".*from:\s*" "" "$line" | string trim | string replace -a '"' '' | string replace -a "'" '')
+            else if string match -q -- "*to:*" "$line"
+                set current_to (string replace -r -- ".*to:\s*" "" "$line" | string trim | string replace -a '"' '' | string replace -a "'" '')
+            else if string match -q -- "*command:*" "$line"
+                set current_command (string replace -r -- ".*command:\s*" "" "$line" | string trim | string replace -a '"' '' | string replace -a "'" '')
             end
         end
     end < "$config_file"

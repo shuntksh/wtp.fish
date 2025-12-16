@@ -117,12 +117,18 @@ wtp remove <TAB>    # Shows removable worktrees (excludes main)
 
 ## Testing
 
-The project is tested using fishtape. Run the tests with:
+The project is tested using [fishtape](https://github.com/jorgebucaran/fishtape). Run the tests with:
 
 ```fish
 fishtape tests/*
 ```
 
+To install fishtape, run:
+
+```fish
+fisher install jorgebucaran/fishtape
+```
+
 ## License
 
-MIT - Same as the main wtp project
+[MIT](/LICENSE) - Same as the main wtp project
