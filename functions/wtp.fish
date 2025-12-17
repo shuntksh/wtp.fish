@@ -445,11 +445,6 @@ function __wtp_remove
             continue
         end
 
-        # Skip unmanaged
-        if not __wtp_is_managed "$wt_path" "$is_main"
-            continue
-        end
-
         set -l name (__wtp_get_worktree_name "$wt_path" "$is_main")
 
         # Match by various methods

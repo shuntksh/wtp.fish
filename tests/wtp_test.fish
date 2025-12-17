@@ -68,6 +68,18 @@ wtp add -b hook-feature >/dev/null
 @test "copy hook worked" -f wts/hook-feature/.env
 @test "command hook worked" -f wts/hook-feature/hooks_ran.txt
 
+# Test 8: Remove managed worktree
+cd $tmp
+wtp rm -f hook-feature >/dev/null 2>&1
+@test "managed worktree removed" ! -d wts/hook-feature
+
+# Test 9: Create and remove unmanaged worktree (not in base_dir)
+git worktree add -b unmanaged-test unmanaged-wt >/dev/null 2>&1
+@test "unmanaged worktree created" -d unmanaged-wt
+
+wtp rm unmanaged-test >/dev/null 2>&1
+@test "unmanaged worktree removed" ! -d unmanaged-wt
+
 # Cleanup
 cd ..
 rm -rf $tmp
