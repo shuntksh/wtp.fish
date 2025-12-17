@@ -1,8 +1,56 @@
-# wtp (Worktree Plus) - Fish Shell Implementation
+<p align="center">
+  <h1 align="center">🌿 wtp.fish</h1>
+  <p align="center">
+    <strong>Worktree Plus for Fish Shell</strong>
+    <br />
+    <em>Streamlined Git worktree management with native Fish shell integration</em>
+    <br /><br />
+    A Fish shell port of <a href="https://github.com/satococoa/wtp"><strong>satococoa/wtp</strong></a>
+  </p>
+</p>
 
-A pure fish shell implementation of the wtp worktree management tool. Porting the original amazing [Go implementation](https://github.com/satococoa/wtp) to fish shell.
+<p align="center">
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-features">Features</a> •
+  <a href="#-usage">Usage</a> •
+  <a href="#%EF%B8%8F-configuration">Configuration</a> •
+  <a href="#-why-wtp">Why wtp?</a>
+</p>
 
-## Installation
+---
+
+## ⚡ Quick Start
+
+```fish
+# Install via Fisher
+fisher install shuntksh/wtp.fish
+
+# Create your first worktree
+wtp add -b feature/awesome-feature
+
+# Switch between worktrees instantly
+wtp cd feature/awesome-feature
+```
+
+## ✨ Features
+
+| Command | Description |
+|---------|-------------|
+| `wtp add` | Create worktrees from existing or new branches |
+| `wtp list` / `wtp ls` | List all worktrees with status information |
+| `wtp remove` / `wtp rm` | Remove worktrees with optional branch cleanup |
+| `wtp cd` | **Native directory switching** — no shell hooks needed! |
+| `wtp init` | Initialize `.wtp.yml` configuration |
+
+### What makes this special?
+
+- 🐟 **Pure Fish shell** — No compilation, no external dependencies
+- 🚀 **Native `wtp cd`** — Changes directory directly in your shell session
+- 📝 **Fisher compatible** — Install and update with a single command
+- ⚙️ **Post-create hooks** — Automatically copy files or run commands
+- 🔮 **Smart completions** — Tab completion for branches and worktrees
+
+## 📦 Installation
 
 ### Using Fisher (Recommended)
 
@@ -12,123 +60,183 @@ fisher install shuntksh/wtp.fish
 
 ### Manual Installation
 
-Copy the files to your fish configuration:
-
 ```fish
+# Clone and copy files to your Fish config
 cp functions/wtp.fish ~/.config/fish/functions/
 cp completions/wtp.fish ~/.config/fish/completions/
 cp conf.d/wtp.fish ~/.config/fish/conf.d/
 ```
 
-## Features
+## 📖 Usage
 
-This fish implementation provides all core wtp functionality:
-
-- **`wtp add`** - Create worktrees from existing or new branches
-- **`wtp list`** (or `wtp ls`) - List all worktrees with status
-- **`wtp remove`** (or `wtp rm`) - Remove worktrees with optional branch deletion
-- **`wtp cd`** - Navigate between worktrees (directly changes directory in fish!)
-- **`wtp init`** - Initialize `.wtp.yml` configuration
-
-### Key Advantages Over Go Binary
-
-1. **Native `wtp cd`** - Unlike the Go binary which requires shell hooks, fish's `wtp cd` directly changes your directory
-2. **No compilation needed** - Pure fish script, works immediately
-3. **Tab completion** - Full completion support for worktrees, branches, and flags
-
-## Usage
+### Creating Worktrees
 
 ```fish
-# Create worktree from existing branch
+# From an existing branch
 wtp add feature/auth
 
-# Create worktree with new branch
+# Create a new branch and worktree
 wtp add -b feature/new-feature
 
-# Create new branch from specific commit
-wtp add -b hotfix/urgent main
+# Create new branch from specific commit/tag
+wtp add -b hotfix/urgent v1.2.0
 
-# List all worktrees
+# Force create (overwrite existing)
+wtp add -f -b feature/retry
+```
+
+### Listing Worktrees
+
+```fish
+# Show all worktrees with details
 wtp list
-wtp ls --quiet  # Only names
 
-# Navigate to worktree
+# Compact output (names only)
+wtp ls --quiet
+```
+
+Example output:
+```
+PATH                           BRANCH                    STATUS     HEAD
+----                           ------                    ------     ----
+@                              main                      managed    a1b2c3d4
+feature/auth                   feature/auth              managed    e5f6g7h8*
+feature/new-ui                 feature/new-ui            managed    i9j0k1l2
+```
+
+### Navigating Between Worktrees
+
+```fish
+# Jump to a specific worktree
 wtp cd feature/auth
-wtp cd  # Go to main worktree
-wtp cd @  # Also goes to main worktree
 
-# Remove worktree
+# Return to main worktree
+wtp cd @
+# or
+wtp cd
+```
+
+### Removing Worktrees
+
+```fish
+# Remove worktree only
 wtp remove feature/old
-wtp remove --with-branch feature/done  # Also delete branch
-wtp remove -f --with-branch --force-branch feature/dirty  # Force everything
 
-# Initialize configuration
+# Remove worktree AND delete the branch
+wtp remove --with-branch feature/done
+
+# Force remove dirty worktree and unmerged branch
+wtp remove -f --with-branch --force-branch feature/abandoned
+```
+
+## ⚙️ Configuration
+
+Initialize a configuration file in your repository:
+
+```fish
 wtp init
 ```
 
-## Configuration
-
-The fish implementation reads the same `.wtp.yml` configuration file as the Go version:
+This creates `.wtp.yml` in your repository root:
 
 ```yaml
 version: "1.0"
 
 defaults:
-  base_dir: ../worktrees  # Worktree location relative to repo root
+  # Where worktrees are created (relative to repo root)
+  base_dir: ../worktrees
 
 hooks:
   post_create:
-    # Copy files from main worktree
+    # Copy environment files from main worktree
     - type: copy
       from: .env
       to: .env
     
-    # Run commands in new worktree
+    # Copy IDE/AI context (often gitignored)
+    - type: copy
+      from: .cursor/
+      to: .cursor/
+    
+    # Run setup commands in new worktree
     - type: command
       command: npm install
 ```
 
-## Differences from Go Version
+### Hook Types
 
-| Feature | Go Binary | Fish Implementation |
-|---------|-----------|---------------------|
-| `wtp cd` | Requires shell hook | Works directly |
-| Compilation | Required | Not needed |
-| Performance | Faster for complex operations | Slight overhead for git calls |
-| YAML parsing | Full support | Basic support |
-| Error messages | Rich formatting | Simpler formatting |
+| Type | Description | Options |
+|------|-------------|---------|
+| `copy` | Copy files from main worktree to new worktree | `from`, `to` |
+| `command` | Execute shell command in new worktree | `command` |
 
-## Requirements
-
-- Fish shell 3.0+
-- Git 2.17+
-- Standard POSIX utilities (sed, grep, realpath)
-
-## Completion
+## 🔮 Completions
 
 Tab completion works out of the box:
 
 ```fish
-wtp <TAB>           # Shows: add, list, remove, cd, init, help, version
-wtp add <TAB>       # Shows available branches
-wtp cd <TAB>        # Shows available worktrees
-wtp remove <TAB>    # Shows removable worktrees (excludes main)
+wtp <TAB>           # add, list, remove, cd, init, help, version
+wtp add <TAB>       # Available branches (local and remote)
+wtp cd <TAB>        # Available worktrees
+wtp remove <TAB>    # Removable worktrees (excludes main)
 ```
 
-## Testing
+## 💡 Why wtp?
 
-The project is tested using [fishtape](https://github.com/jorgebucaran/fishtape). Run the tests with:
+### The Problem with Git Worktrees
+
+Git worktrees are powerful but cumbersome to use:
 
 ```fish
+# Standard git workflow 😓
+git worktree add ../my-repo-feature-auth feature/auth
+cd ../my-repo-feature-auth
+# ... where was that again?
+```
+
+### The wtp Solution
+
+```fish
+# With wtp 🎉
+wtp add feature/auth
+wtp cd feature/auth
+```
+
+**wtp** handles path management, provides intuitive navigation, and automates setup tasks — all with a clean, consistent interface.
+
+## 📋 Requirements
+
+- **Fish shell** 3.0+
+- **Git** 2.17+
+- Standard POSIX utilities (`sed`, `grep`, `realpath`)
+
+## 🧪 Testing
+
+Tests are written using [fishtape](https://github.com/jorgebucaran/fishtape):
+
+```fish
+# Install fishtape
+fisher install jorgebucaran/fishtape
+
+# Run tests
 fishtape tests/*
 ```
 
-To install fishtape, run:
+## � Credits
 
-```fish
-fisher install jorgebucaran/fishtape
-```
+This project is a pure Fish shell port of the original **[wtp](https://github.com/satococoa/wtp)** created by **[@satococoa](https://github.com/satococoa)**. All credit for the original concept, design, and CLI interface goes to them.
 
-## License
+The original Go implementation is excellent — this Fish port exists primarily to provide native `wtp cd` functionality without requiring a shell hook, and for those who prefer a shell-native solution.
 
-[MIT](/LICENSE) - Same as the main wtp project
+### Implementation Differences
+
+| Aspect | Go Binary | Fish Implementation |
+|--------|-----------|---------------------|
+| `wtp cd` | Requires shell hook | Works natively |
+| Installation | Build from source | Single Fisher command |
+| Dependencies | Go runtime (build) | None |
+| YAML parsing | Full support | Basic support |
+
+## 📄 License
+
+[MIT](LICENSE) © 2025 Shun Takahashi
