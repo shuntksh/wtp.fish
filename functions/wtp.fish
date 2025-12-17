@@ -22,7 +22,7 @@ function wtp --description "Enhanced Git worktree management"
         case cd
             __wtp_cd $args
         case init
-            __wtp_init
+            __wtp_init $args
         case help -h --help
             __wtp_help
         case version -v --version
@@ -47,6 +47,7 @@ function __wtp_help
     echo "  remove, rm <name>     Remove a worktree"
     echo "  cd [name]             Change to worktree directory (@ for main)"
     echo "  init                  Initialize .wtp.yml configuration"
+    echo "  init --config-dir     Initialize in .config/.wtp.yml"
     echo "  help                  Show this help message"
     echo "  version               Show version information"
     echo ""
@@ -209,9 +210,10 @@ end
 # Run post-create hooks
 function __wtp_run_hooks --argument-names wt_path
     set -l main_path (__wtp_get_main_worktree_path)
-    set -l config_file "$main_path/.wtp.yml"
-
-    if not test -f "$config_file"
+    
+    # Find config file from multiple paths
+    set -l config_file (__wtp_find_config)
+    if test $status -ne 0; or test -z "$config_file"
         return 0
     end
 
@@ -569,6 +571,19 @@ end
 
 # wtp init command
 function __wtp_init
+    set -l use_config_dir false
+
+    # Parse arguments
+    for arg in $argv
+        switch $arg
+            case --config-dir
+                set use_config_dir true
+            case '-*'
+                echo "Error: Unknown option '$arg'" >&2
+                return 1
+        end
+    end
+
     # Check if in git repository
     if not git rev-parse --git-dir >/dev/null 2>&1
         echo "Error: Not in a git repository" >&2
@@ -576,11 +591,20 @@ function __wtp_init
     end
 
     set -l repo_path (git rev-parse --show-toplevel 2>/dev/null)
-    set -l config_path "$repo_path/.wtp.yml"
-
-    if test -f "$config_path"
-        echo "Error: Configuration file already exists: $config_path" >&2
+    
+    # Check if config already exists in any location
+    set -l existing_config (__wtp_find_config)
+    if test -n "$existing_config"
+        echo "Error: Configuration file already exists: $existing_config" >&2
         return 1
+    end
+
+    # Determine config path
+    set -l config_path "$repo_path/.wtp.yml"
+    if test "$use_config_dir" = "true"
+        set config_path "$repo_path/.config/.wtp.yml"
+        # Create .config directory if it doesn't exist
+        mkdir -p "$repo_path/.config"
     end
 
     # Create configuration file
