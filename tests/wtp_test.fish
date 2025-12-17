@@ -70,7 +70,7 @@ wtp add -b hook-feature >/dev/null
 
 # Test 8: Remove managed worktree
 cd $tmp
-wtp rm -f hook-feature >/dev/null
+wtp rm -f hook-feature >/dev/null 2>&1
 @test "managed worktree removed" ! -d wts/hook-feature
 
 # Test 9: Create and remove unmanaged worktree (not in base_dir)
