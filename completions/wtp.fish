@@ -101,3 +101,6 @@ complete -c wtp -n "__fish_seen_subcommand_from remove rm" -a "(__wtp_complete_r
 
 # wtp cd completions
 complete -c wtp -n "__fish_seen_subcommand_from cd" -a "(__wtp_complete_worktrees)" -d "Worktree"
+
+# wtp init completions
+complete -c wtp -n "__fish_seen_subcommand_from init" -l config-dir -d "Create config in .config/ directory"
