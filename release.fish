@@ -4,8 +4,8 @@
 # Usage: ./scripts/release.fish <version>
 
 if test (count $argv) -ne 1
-    echo "Usage: ./scripts/release.fish <version>"
-    echo "Example: ./scripts/release.fish 0.1.0"
+    echo "Usage: ./release.fish <version>"
+    echo "Example: ./release.fish 0.1.0"
     exit 1
 end
 
