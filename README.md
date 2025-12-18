@@ -36,13 +36,13 @@ wtp cd feature/my-feature
 
 ## Features
 
-| Command | Description |
-|---------|-------------|
-| `wtp add` | Create worktrees from existing or new branches |
-| `wtp list` / `wtp ls` | List all worktrees with status information |
-| `wtp remove` / `wtp rm` | Remove worktrees with optional branch cleanup |
-| `wtp cd` | Change directory to worktree root |
-| `wtp init` | Initialize `.wtp.yml` configuration |
+| Command                 | Description                                    |
+| ----------------------- | ---------------------------------------------- |
+| `wtp add`               | Create worktrees from existing or new branches |
+| `wtp list` / `wtp ls`   | List all worktrees with status information     |
+| `wtp remove` / `wtp rm` | Remove worktrees with optional branch cleanup  |
+| `wtp cd`                | Change directory to worktree root              |
+| `wtp init`              | Initialize `.wtp.yml` configuration            |
 
 ### Key Features
 
@@ -167,10 +167,10 @@ hooks:
 
 ### Hook Types
 
-| Type | Description | Options |
-|------|-------------|---------|
-| `copy` | Copy files from main worktree to new worktree | `from`, `to` |
-| `command` | Execute shell command in new worktree | `command` |
+| Type      | Description                                   | Options      |
+| --------- | --------------------------------------------- | ------------ |
+| `copy`    | Copy files from main worktree to new worktree | `from`, `to` |
+| `command` | Execute shell command in new worktree         | `command`    |
 
 ## Completions
 
@@ -213,7 +213,6 @@ This abstracts the underlying directory structure and simplifies navigation betw
 
 - **Fish shell** 3.0+
 - **Git** 2.17+
-- Standard POSIX utilities (`sed`, `grep`, `realpath`)
 
 ## Testing
 
@@ -232,15 +231,6 @@ fishtape tests/*
 This project is a Fish shell port of **[wtp](https://github.com/satococoa/wtp)** created by **[@satococoa](https://github.com/satococoa)**.
 
 This port enables native directory switching (`wtp cd`) without external shell hooks and offers a shell-native alternative to the original Go implementation.
-
-### Implementation Differences
-
-| Aspect | Go Binary | Fish Implementation |
-|--------|-----------|---------------------|
-| `wtp cd` | Requires shell hook | Works natively |
-| Installation | Build from source | Single Fisher command |
-| Dependencies | Go runtime (build) | None |
-| YAML parsing | Full support | Basic support |
 
 ## License
 
