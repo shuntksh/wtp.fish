@@ -56,6 +56,7 @@ function __wtp_help
     echo "  wtp add -b feature/new           # Create new branch and worktree"
     echo "  wtp list                         # Show all worktrees"
     echo "  wtp cd feature/auth              # Navigate to worktree"
+    echo "  wtp add -b feature/new --cd      # Create and cd to new worktree"
     echo "  wtp cd                           # Navigate to main worktree"
     echo "  wtp remove feature/old           # Remove a worktree"
     echo "  wtp remove --with-branch feature # Also delete the branch"
@@ -86,6 +87,7 @@ function __wtp_add
     set -l new_branch ""
     set -l commitish ""
     set -l force false
+    set -l change_dir false
 
     # Parse arguments
     set -l i 1
@@ -102,6 +104,8 @@ function __wtp_add
                 end
             case -f --force
                 set force true
+            case --cd
+                set change_dir true
             case '-*'
                 echo "Error: Unknown option '$arg'" >&2
                 return 1
@@ -175,6 +179,10 @@ function __wtp_add
     echo ""
     echo "💡 To switch to the new worktree, run:"
     echo "   wtp cd $path_branch"
+
+    if test "$change_dir" = "true"
+        cd "$wt_path"
+    end
 end
 
 # Resolve branch (check local then remote)
