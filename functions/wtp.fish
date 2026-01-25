@@ -64,7 +64,7 @@ end
 
 # Print version
 function __wtp_version
-    echo "wtp (fish) 0.0.5"
+    echo "wtp (fish) 0.0.6"
 end
 
 # Resolve worktree path from branch name
