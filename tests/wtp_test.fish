@@ -23,9 +23,18 @@ echo "version: '1.0'
 defaults:
   base_dir: wts" > .wtp.yml
 
-# Test 2: Add
+# Test 2: Add (should cd by default)
 wtp add -b feat-1 >/dev/null
-@test "worktree directory created" -d wts/feat-1
+@test "worktree directory created" -d $tmp/wts/feat-1
+@test "run wtp add changes directory" (pwd) = "$tmp/wts/feat-1"
+
+# Go back to root
+cd $tmp
+
+# Test 2b: Add with --no-cd
+wtp add -b feat-no-cd --no-cd >/dev/null
+@test "worktree directory created (no-cd)" -d $tmp/wts/feat-no-cd
+@test "run wtp add --no-cd stays in root" (pwd) = "$tmp"
 
 # Test 3: CD to worktree
 wtp cd feat-1 >/dev/null
@@ -40,7 +49,7 @@ echo "version: '1.0'
 defaults:
   base_dir: nested/path" > .wtp.yml
 
-wtp add -b feat-nested >/dev/null
+wtp add -b feat-nested --no-cd >/dev/null
 @test "nested worktree directory created" -d nested/path/feat-nested
 
 # Test 6: CD to nested
@@ -64,7 +73,7 @@ hooks:
     - type: command
       command: touch hooks_ran.txt" > .wtp.yml
 
-wtp add -b hook-feature >/dev/null
+wtp add -b hook-feature --no-cd >/dev/null
 @test "copy hook worked" -f wts/hook-feature/.env
 @test "command hook worked" -f wts/hook-feature/hooks_ran.txt
 

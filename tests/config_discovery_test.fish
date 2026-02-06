@@ -25,7 +25,7 @@ echo "version: '1.0'
 defaults:
   base_dir: alt-worktrees" > .config/.wtp.yml
 
-wtp add -b config-dir-test >/dev/null
+wtp add -b config-dir-test --no-cd >/dev/null
 @test "config discovery uses .config/.wtp.yml" -d alt-worktrees/config-dir-test
 
 # Test 3: Primary path takes precedence over secondary
@@ -33,7 +33,7 @@ echo "version: '1.0'
 defaults:
   base_dir: primary-wts" > .wtp.yml
 
-wtp add -b priority-test >/dev/null
+wtp add -b priority-test --no-cd >/dev/null
 @test "primary config path takes precedence" -d primary-wts/priority-test
 @test "secondary path not used when primary exists" ! -d alt-worktrees/priority-test
 
